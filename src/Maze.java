@@ -1,3 +1,5 @@
+import java.util.*;
+
 /**
  * Missions 1 and 2. Building the maze out of the walls.
  * A wall k joins the cells w.a()[k] and w.b()[k] and costs w.cost()[k]. Indexes start from 0,
@@ -10,8 +12,13 @@ public class Maze {
      * Returns the indexes of the broken walls, in the order of breaking.
      */
     public static int[] breakWalls(Input.Walls w) {
-        // TODO
-        return new int[0];
+        DisjointSet dsu = new DisjointSet(w.cells());
+        int[] broken = new int[Math.max(0, w.cells() - 1)];
+        int count = 0;
+        for (int k = 0; k < w.count(); k++) {
+            if (dsu.union(w.a()[k], w.b()[k])) broken[count++] = k;
+        }
+        return Arrays.copyOf(broken, count);
     }
 
     /**

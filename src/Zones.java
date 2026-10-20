@@ -77,7 +77,38 @@ public class Zones {
      * [1] the cost of the cheapest route from the zone of cell 0 to the zone of the last cell.
      */
     public static long[] routes(Input.Slides s, int[] zoneOf, int zoneCount) {
-        // TODO
-        return new long[]{0, 0};
+        // the graph of zones: for every zone the slides that leave it to another zone
+        int[] degree = new int[zoneCount];
+        for (int i = 0; i < s.count(); i++) {
+            if (zoneOf[s.from()[i]] != zoneOf[s.to()[i]]) degree[zoneOf[s.from()[i]]]++;
+        }
+        int[][] out = new int[zoneCount][];
+        for (int z = 0; z < zoneCount; z++) out[z] = new int[degree[z]];
+        int[] filled = new int[zoneCount];
+        for (int i = 0; i < s.count(); i++) {
+            int x = zoneOf[s.from()[i]], y = zoneOf[s.to()[i]];
+            if (x != y) out[x][filled[x]++] = i;   // a slide inside one zone is free walking, not an edge
+        }
+
+        // Go through the zones in the order of their numbers (a topological order): when we reach zone x,
+        // every edge into x comes from a smaller number, so longest[x] and dist[x] are already final.
+        final long INF = Long.MAX_VALUE;
+        int startZone = zoneOf[0], exitZone = zoneOf[s.n() - 1];
+        long[] longest = new long[zoneCount];   // zones on the longest chain that ends in this zone
+        long[] dist = new long[zoneCount];      // cheapest time from the zone of the start
+        java.util.Arrays.fill(longest, 1);
+        java.util.Arrays.fill(dist, INF);
+        dist[startZone] = 0;
+        long stages = zoneCount > 0 ? 1 : 0;
+        for (int x = 0; x < zoneCount; x++) {
+            stages = Math.max(stages, longest[x]);
+            for (int i : out[x]) {
+                int y = zoneOf[s.to()[i]];
+                longest[y] = Math.max(longest[y], longest[x] + 1);
+                // relaxing over every slide X -> Y automatically uses the cheapest one
+                if (dist[x] != INF && dist[x] + s.time()[i] < dist[y]) dist[y] = dist[x] + s.time()[i];
+            }
+        }
+        return new long[]{stages, dist[exitZone] == INF ? -1 : dist[exitZone]};
     }
 }

@@ -2,7 +2,7 @@
 
 Student ID: 254188
 Name: Nurassyl Ilyas
-Group: 254188
+Group: SE-2536
 Maze size (rows x columns): 12 x 11
 
 This file is the report. Fill it in as you go. How to start: `START_HERE.md`. The task: `docs/Assignment3.pdf`.

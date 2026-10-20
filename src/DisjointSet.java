@@ -5,30 +5,52 @@
  */
 public class DisjointSet {
 
+    private final int[] parent;   // parent[x] == x means x is a root
+    private final int[] size;     // size[root] = number of cells in the tree of this root
+    private int sets;             // number of sets now
+
     public DisjointSet(int n) {
-        // TODO
+        parent = new int[n];
+        size = new int[n];
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+            size[i] = 1;
+        }
+        sets = n;
     }
 
     /** The root of the set that contains x. */
     public int find(int x) {
-        // TODO
-        return x;
+        // first walk up to the root
+        int root = x;
+        while (parent[root] != root) root = parent[root];
+        // then path compression: hang every cell on the way directly under the root (a loop, no recursion)
+        while (parent[x] != root) {
+            int next = parent[x];
+            parent[x] = root;
+            x = next;
+        }
+        return root;
     }
 
     /** Joins the sets of a and b. Returns true if they were different sets, false if they were already one set. */
     public boolean union(int a, int b) {
-        // TODO
-        return false;
+        int ra = find(a), rb = find(b);
+        if (ra == rb) return false;
+        // union by size: the smaller tree goes under the larger one
+        if (size[ra] < size[rb]) { int t = ra; ra = rb; rb = t; }
+        parent[rb] = ra;
+        size[ra] += size[rb];
+        sets--;
+        return true;
     }
 
     public boolean connected(int a, int b) {
-        // TODO
-        return false;
+        return find(a) == find(b);
     }
 
     /** Number of sets now. */
     public int count() {
-        // TODO
-        return 0;
+        return sets;
     }
 }

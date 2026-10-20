@@ -19,8 +19,55 @@ public class Zones {
      * Is DAG in Main is 1 when the number of zones equals the number of cells (no cycle), so you do not need a separate check.
      */
     public static int[] kosaraju(Input.Slides s) {
-        // TODO
-        return new int[s.n()];
+        int n = s.n();
+        int[][] out = Graphs.slidesFrom(s);
+        int[][] in = Graphs.slidesInto(s);
+
+        // Pass 1: DFS on the slides, write down the cells in the order in which they are finished.
+        // Own stack instead of recursion: next[u] is how many slides of u are already tried.
+        boolean[] visited = new boolean[n];
+        int[] next = new int[n];
+        int[] stack = new int[n];
+        int[] finished = new int[n];
+        int done = 0;
+        for (int start = 0; start < n; start++) {
+            if (visited[start]) continue;
+            int top = 0;
+            stack[0] = start;
+            visited[start] = true;
+            while (top >= 0) {
+                int u = stack[top];
+                if (next[u] < out[u].length) {
+                    int v = s.to()[out[u][next[u]++]];
+                    if (!visited[v]) { visited[v] = true; stack[++top] = v; }
+                } else {
+                    finished[done++] = u;   // all slides of u are tried: u is finished
+                    top--;
+                }
+            }
+        }
+
+        // Pass 2: from the last finished cell to the first, DFS on the reversed slides.
+        // Every cell reached that has no zone yet gets the current zone number.
+        int[] zoneOf = new int[n];
+        java.util.Arrays.fill(zoneOf, -1);
+        int zones = 0;
+        for (int i = n - 1; i >= 0; i--) {
+            int root = finished[i];
+            if (zoneOf[root] >= 0) continue;
+            int top = 0;
+            stack[0] = root;
+            zoneOf[root] = zones;
+            while (top >= 0) {
+                int v = stack[top--];
+                for (int k : in[v]) {
+                    int u = s.from()[k];
+                    if (zoneOf[u] < 0) { zoneOf[u] = zones; stack[++top] = u; }
+                }
+            }
+            zones++;
+        }
+        return zoneOf;
     }
 
     /**

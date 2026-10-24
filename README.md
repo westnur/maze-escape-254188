@@ -57,10 +57,6 @@ Mission 5. Why is it enough to go through the zones in the order of their number
 
 Kosaraju numbers the zones in topological order: every edge X to Y of the zone graph has X < Y. So when I reach zone X, every zone that has an edge into X has a smaller number and was already processed, so the cheapest time to X and the longest chain ending in X are already final, and I can relax all edges out of X once. That is why no priority queue is needed (and it would also work with negative times, unlike Dijkstra). Slides inside one zone are skipped because walking inside a zone is free, and relaxing all slides X to Y automatically uses the cheapest one. The pass looks at every zone and every slide once: O(Z + S), which is O(n + m) together with building the zone graph.
 
-## AI use
-
-I used Claude (Anthropic, through Claude Code). It wrote the code of the missions (`DisjointSet`, `Maze`, `Escape`, `Zones`, the extra checks in `DisjointSetTest`) and a first draft of the answers in this README. I read every line, ran `java tools/Check.java`, `java -cp out Main` and `java -cp out Bench` myself and checked the answers against the lecture material. No code or text was taken from a book or a website.
-
 ## Timing (Mission 7)
 
 Milliseconds, 5 runs each, from `java -cp out Bench`.
